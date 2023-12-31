@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using LibraryApi.DBContext;
 using LibraryApi.Services;
+using Microsoft.AspNetCore.Authorization;
+
+using LibraryApi.Authentication;
 
 namespace LibraryApi.Controllers;
 
@@ -10,10 +13,13 @@ namespace LibraryApi.Controllers;
 /// and ErrorMessage field will contain text information about error. 
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("api/[controller]/")]
 public class BooksController: Controller
 {
 	private readonly ILibraryService _ls;
+
+	
 	
 	public BooksController(ILibraryService ls)
 	{
@@ -38,6 +44,7 @@ public class BooksController: Controller
 	/// Success field is false. In error Message text description of an error
 	/// </response>
 	[HttpGet]
+	[AllowAnonymous]
 	public IActionResult GetAll()
 	{
 		var res = _ls.GetAll();
@@ -70,6 +77,7 @@ public class BooksController: Controller
 	/// Success field is false. In error Message text description of an error
 	/// </response>
 	[HttpGet("{id:int}")]
+	[AllowAnonymous]
 	public IActionResult GetById(int id)
 	{
 		var res = _ls.GetById(id);
@@ -96,6 +104,7 @@ public class BooksController: Controller
 	/// Success field is false. In error Message text description of an error
 	/// </response>
 	[HttpGet("isbn/")]
+	[AllowAnonymous]
 	public IActionResult GetByIsbn(string isbn)
 	{
 		var res = _ls.GetByISBN(isbn);

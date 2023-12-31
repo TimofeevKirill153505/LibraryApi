@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using LibraryApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +50,38 @@ builder.Services.AddSwaggerGen(options =>
 	var file = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 	var path = Path.Combine(AppContext.BaseDirectory, file);
 	options.IncludeXmlComments(path);
+	
+	//options.SwaggerDoc("LibraryApi", new OpenApiInfo(){Title = "LibraryApi", Version = "1.0"});
+	
+	options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme //
+	{
+		In = ParameterLocation.Header,
+		Description = "JWT Authorization header using the Bearer scheme.\nEnter" +
+					" your token in the text input below. Please enter a valid token",
+		Name = "Authorization",
+		Type = SecuritySchemeType.Http,
+		BearerFormat = "JWT",
+		Scheme = "Bearer"
+	});
+	
+	
+	options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+	{	// initial collection begin
+		{	// key-value pair
+			new OpenApiSecurityScheme	// key
+			{
+				Reference = new OpenApiReference
+				{
+					Type = ReferenceType.SecurityScheme,
+					Id = "Bearer"
+				}
+
+			},
+			new List<string>()		// value
+		}
+	});
 });
+
 builder.Services.AddDbContext<LibraryDbContext>(options =>
 {
 	options.UseSqlite(builder.Configuration.GetConnectionString("Library"));
