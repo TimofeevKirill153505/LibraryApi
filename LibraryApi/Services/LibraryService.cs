@@ -1,25 +1,30 @@
 using LibraryApi.DBContext;
 using System.ComponentModel;
+using AutoMapper;
+using LibraryApi.MappingProfiles;
+
 namespace LibraryApi.Services;
 
 
 /// <summary>
-/// Realisation of ILiabraryService interface. In case of error data field will be null
+/// Realisation of ILibraryService interface. In case of error data field will be null
 /// </summary>
 class LibraryService : ILibraryService
 {
 	private readonly LibraryDbContext _db;
+	private readonly IMapper _mapper;
 	
-	public LibraryService(LibraryDbContext db)
+	public LibraryService(LibraryDbContext db, IMapper mapper)
 	{
 		_db = db;
+		_mapper = mapper;
 	}
 	
-	public Result<IEnumerable<Book>> GetAll()
+	public Result<IEnumerable<BookDto>> GetAll()
 	{
 		try
 		{
-			return new (true, _db.Books);
+			return new (true, _mapper.Map<IEnumerable<BookDto>>(_db.Books));
 		}
 		catch (Exception e)
 		{
@@ -27,11 +32,11 @@ class LibraryService : ILibraryService
 		}
 	}
 
-	public Result<Book> GetById(int id)
+	public Result<BookDto> GetById(int id)
 	{
 		try
 		{
-			return new(true, _db.Books.Find(id));
+			return new(true, _mapper.Map<BookDto>(_db.Books.Find(id)));
 		}
 		catch (Exception e)
 		{
@@ -39,14 +44,14 @@ class LibraryService : ILibraryService
 		}
 	}
 
-	public Result<Book> DeleteById(int id)
+	public Result<BookDto> DeleteById(int id)
 	{
 		try
 		{
 			var book = _db.Books.Find(id);
 			_db.Books.Remove(book);
 			_db.SaveChanges();
-			return new(true, book);
+			return new(true, _mapper.Map<BookDto>(book));
 		}
 		catch (Exception e)
 		{
@@ -54,7 +59,7 @@ class LibraryService : ILibraryService
 		}
 	}
 
-	public Result<Book> Update(int id, Book book)
+	public Result<BookDto> Update(int id, BookDto bookDto)
 	{
 		try
 		{
@@ -64,12 +69,13 @@ class LibraryService : ILibraryService
 			{
 				throw new Exception($"There is no object with id {id}");
 			}
-			
+
+			Book book = _mapper.Map<Book>(bookDto);
 			origin.CopyDataFrom(book);
 			var ee = _db.Books.Update(origin);
 			_db.SaveChanges();
 			
-			return new(true, ee.Entity);
+			return new(true, _mapper.Map<BookDto>(ee.Entity));
 		}
 		catch (Exception e)
 		{
@@ -77,15 +83,15 @@ class LibraryService : ILibraryService
 		}
 	}
 
-	public Result<Book> Create(Book book)
+	public Result<BookDto> Create(BookDto bookDto)
 	{
 		try
 		{
-			//origin.CopyDataFrom(book);
+			Book book = _mapper.Map<Book>(bookDto);
 			var ee = _db.Books.Add(book);
 			_db.SaveChanges();
 			
-			return new(true, ee.Entity);
+			return new(true, _mapper.Map<BookDto>(ee.Entity));
 		}
 		catch (Exception e)
 		{
@@ -93,13 +99,11 @@ class LibraryService : ILibraryService
 		}
 	}
 
-	public Result<Book> GetByISBN(string isbn)
+	public Result<BookDto> GetByISBN(string isbn)
 	{
 		try
 		{
-			//origin.CopyDataFrom(book);
-			
-			return new(true, _db.Books.First(b=>b.ISBN == isbn));
+			return new(true, _mapper.Map<BookDto>(_db.Books.First(b=>b.ISBN == isbn)));
 		}
 		catch (Exception e)
 		{

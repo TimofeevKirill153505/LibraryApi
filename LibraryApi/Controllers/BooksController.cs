@@ -10,7 +10,7 @@ namespace LibraryApi.Controllers;
 /// <summary>
 /// Main controller of app. Actions return json object. In case of success filed success of returned json object will be
 /// true and value of field data will depend on action. In case of error, field success will be false, data will be null
-/// and ErrorMessage field will contain text information about error. 
+/// and ErrorMessage field will contain text information about error. Only Admin can create and delete books.
 /// </summary>
 [ApiController]
 [Authorize]
@@ -145,8 +145,12 @@ public class BooksController: Controller
 	/// Some error occured while processing request.
 	/// Success field is false. In error Message text description of an error
 	/// </response>
+	///
+	/// <response code="401">
+	/// Attempt of unauthorized access. You need to send a valid jwt in header with your request.
+	/// </response>
 	[HttpPut("{id:int}")]
-	public IActionResult Update(int id, Book book)
+	public IActionResult Update(int id, BookDto book)
 	{
 		var res = _ls.Update(id, book);
 
@@ -172,7 +176,11 @@ public class BooksController: Controller
 	/// Some error occured while processing request.
 	/// Success field is false. In error Message text description of an error
 	/// </response>
+	/// <response code="401">
+	/// Attempt of unauthorized access. You need to send a valid jwt in header with your request.
+	/// </response>
 	[HttpDelete("{id:int}")]
+	[Authorize("Admin Policy")]
 	public IActionResult Delete(int id)
 	{
 		var res = _ls.DeleteById(id);
@@ -210,8 +218,13 @@ public class BooksController: Controller
 	/// Some error occured while processing request.
 	/// Success field is false. In error Message text description of an error
 	/// </response>
+	/// 
+	/// <response code="401">
+	/// Attempt of unauthorized access. You need to send a valid jwt in header with your request.
+	/// </response>
 	[HttpPost]
-	public IActionResult Create(Book book)
+	[Authorize("Admin Policy")]
+	public IActionResult Create(BookDto book)
 	{
 		var res = _ls.Create(book);
 

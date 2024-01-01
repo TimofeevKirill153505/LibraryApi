@@ -9,15 +9,15 @@ namespace LibraryApi.Services;
 /// </summary>
 public interface ILibraryService
 {
-	public Result<IEnumerable<Book>> GetAll();
+	public Result<IEnumerable<BookDto>> GetAll();
 
-	public Result<Book> GetById(int id);
+	public Result<BookDto> GetById(int id);
 
-	public Result<Book> DeleteById(int id);
+	public Result<BookDto> DeleteById(int id);
 
-	public Result<Book> Update(int id, Book book);
+	public Result<BookDto> Update(int id, BookDto book);
 
-	public Result<Book> Create(Book book);
+	public Result<BookDto> Create(BookDto book);
 
-	public Result<Book> GetByISBN(string isbn);
+	public Result<BookDto> GetByISBN(string isbn);
 }

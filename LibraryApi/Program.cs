@@ -1,12 +1,15 @@
 using System.Reflection;
 using System.Security.Claims;
-using LibraryApi.Authentication;
-using LibraryApi.DBContext;
+
 using Microsoft.EntityFrameworkCore;
-using LibraryApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
+using LibraryApi.Authentication;
+using LibraryApi.DBContext;
+using LibraryApi.Services;
+using LibraryApi.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddAutoMapper(typeof(BookMapProfile));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -40,6 +44,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 		// валидация ключа безопасности
 		ValidateIssuerSigningKey = true,
 	};
+});
+
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("Admin Policy", policy =>
+	{
+		policy.RequireRole(new string[] {"admin"});
+	});
 });
 
 builder.Services.AddScoped<ILibraryService, LibraryService>();
@@ -98,6 +110,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 

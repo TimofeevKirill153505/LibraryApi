@@ -13,14 +13,17 @@ namespace LibraryApi.Controllers;
 /// </summary>
 [ApiController]
 [Route("/api/token")]
+[AllowAnonymous]
 public class TokenController : Controller
 {
 	public TokenController()
 	{
 		
 	}
+
 	/// <summary>
-	/// Simple authorization action. Use {"username":"username", "password":"password"} to get valid token
+	/// Simple authorization action. Use "username":"username", "password":"password" to get valid token of user and
+	/// "username":"admin", "password":"admin" to get valid token of admin. All tokens are valid for 5 minutes
 	/// </summary>
 	/// <param name="username">username </param>
 	/// <param name="password">password of user</param>
@@ -30,20 +33,43 @@ public class TokenController : Controller
 	[HttpGet]
 	public IActionResult GetToken(string username, string password)
 	{
-		if (username != "username" || password != "password") return Unauthorized();
-		var claims = new List<Claim>
+		if (username == "username" && password == "password")
 		{
-			new Claim("username", "username"),
-			new Claim("isStuff", "true")
-		};
-		var jwt = new JwtSecurityToken(
-			issuer: MyAuthOptions.ISSUER,
-			audience: MyAuthOptions.AUDIENCE,
-			claims: claims,
-			expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(2)), // время действия 2 минуты
-			signingCredentials: new SigningCredentials(MyAuthOptions.GetSymmetricSecurityKey(),
-				SecurityAlgorithms.HmacSha256));
+			var claims = new List<Claim>
+			{
+				new Claim("username", "username"),
+				new Claim("isStuff", "true"),
+				new Claim(ClaimTypes.Role, "user")
+			};
+			var jwt = new JwtSecurityToken(
+				issuer: MyAuthOptions.ISSUER,
+				audience: MyAuthOptions.AUDIENCE,
+				claims: claims,
+				expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(5)), // время действия 5 минуты
+				signingCredentials: new SigningCredentials(MyAuthOptions.GetSymmetricSecurityKey(),
+					SecurityAlgorithms.HmacSha256));
 
-		return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
+			return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
+		}
+		else if (username == "admin" && password == "admin")
+		{
+			var claims = new List<Claim>
+			{
+				new Claim("username", "admin"),
+				new Claim("isStuff", "true"),
+				new Claim(ClaimTypes.Role, "admin")
+			};
+			var jwt = new JwtSecurityToken(
+				issuer: MyAuthOptions.ISSUER,
+				audience: MyAuthOptions.AUDIENCE,
+				claims: claims,
+				expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(5)), // время действия 5 минуты
+				signingCredentials: new SigningCredentials(MyAuthOptions.GetSymmetricSecurityKey(),
+					SecurityAlgorithms.HmacSha256));
+
+			return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
+		}
+		
+		return Unauthorized();
 	}
 }
