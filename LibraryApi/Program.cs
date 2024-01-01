@@ -61,7 +61,7 @@ builder.Services.AddSwaggerGen(options =>
 {
 	var file = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 	var path = Path.Combine(AppContext.BaseDirectory, file);
-	options.IncludeXmlComments(path);
+	options.IncludeXmlComments(path, true);
 	
 	//options.SwaggerDoc("LibraryApi", new OpenApiInfo(){Title = "LibraryApi", Version = "1.0"});
 	

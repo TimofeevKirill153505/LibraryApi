@@ -11,6 +11,9 @@ namespace LibraryApi.Controllers;
 /// Main controller of app. Actions return json object. In case of success filed success of returned json object will be
 /// true and value of field data will depend on action. In case of error, field success will be false, data will be null
 /// and ErrorMessage field will contain text information about error. Only Admin can create and delete books.
+/// Authenticated user can update books. Not authenticated user can only get all books or get books by id.
+/// Field Genre of the books is enum that can be converted to string, so in json it can be both string and number,
+/// but this value must be numeric value of enum member or its name.
 /// </summary>
 [ApiController]
 [Authorize]
