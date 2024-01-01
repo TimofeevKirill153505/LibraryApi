@@ -147,7 +147,7 @@ public class BooksController: Controller
 	/// </response>
 	///
 	/// <response code="401">
-	/// Attempt of unauthorized access. You need to send a valid jwt in header with your request.
+	/// Attempt of unauthenticated access. You need to send a valid jwt in header with your request.
 	/// </response>
 	[HttpPut("{id:int}")]
 	public IActionResult Update(int id, BookDto book)
@@ -177,7 +177,10 @@ public class BooksController: Controller
 	/// Success field is false. In error Message text description of an error
 	/// </response>
 	/// <response code="401">
-	/// Attempt of unauthorized access. You need to send a valid jwt in header with your request.
+	/// Attempt of unauthenticated access. You need to send a valid jwt in header with your request.
+	/// </response>
+	/// <response code="403">
+	/// Attempt of unauthorized access. You need to send a valid jwt of admin
 	/// </response>
 	[HttpDelete("{id:int}")]
 	[Authorize("Admin Policy")]
@@ -220,7 +223,10 @@ public class BooksController: Controller
 	/// </response>
 	/// 
 	/// <response code="401">
-	/// Attempt of unauthorized access. You need to send a valid jwt in header with your request.
+	/// Attempt of unauthenticated access. You need to send a valid jwt in header with your request.
+	/// </response>
+	/// <response code="403">
+	/// Attempt of unauthorized access. You need to send a valid jwt of admin
 	/// </response>
 	[HttpPost]
 	[Authorize("Admin Policy")]
