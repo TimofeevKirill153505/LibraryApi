@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace LibraryApi.DBContext;
+namespace LibraryApi.Domain.Models;
 
 public enum GenreType
 {

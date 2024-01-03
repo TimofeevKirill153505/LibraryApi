@@ -1,8 +1,7 @@
 using AutoMapper;
+using LibraryApi.Domain.Models;
 
-using LibraryApi.DBContext;
-
-namespace LibraryApi.MappingProfiles;
+namespace LibraryApi.Domain.MappingProfiles;
 
 public class BookMapProfile:Profile
 {

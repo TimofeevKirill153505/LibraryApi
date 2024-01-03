@@ -1,4 +1,4 @@
-namespace LibraryApi.Services;
+namespace LibraryApi.Domain.Result;
 /// <summary>
 /// Class, created to react at errors.
 /// </summary>

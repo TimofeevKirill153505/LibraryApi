@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace LibraryApi.DBContext;
+using LibraryApi.Domain.Models;
+
+namespace LibraryApi.Domain.DBContext;
 
 public class LibraryDbContext: DbContext
 {

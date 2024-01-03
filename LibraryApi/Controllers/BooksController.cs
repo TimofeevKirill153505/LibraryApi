@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using LibraryApi.DBContext;
+using LibraryApi.Domain.Models;
 using LibraryApi.Services;
 using Microsoft.AspNetCore.Authorization;
 

@@ -7,17 +7,16 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 using LibraryApi.Authentication;
-using LibraryApi.DBContext;
+using LibraryApi.Domain.Models;
+using LibraryApi.Services.Repository;
 using LibraryApi.Services;
-using LibraryApi.MappingProfiles;
+using LibraryApi.Domain.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-
-builder.Services.AddAutoMapper(typeof(BookMapProfile));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -54,9 +53,7 @@ builder.Services.AddAuthorization(options =>
 	});
 });
 
-builder.Services.AddScoped<ILibraryService, LibraryService>();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-//builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(options =>
 {
 	var file = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -94,10 +91,18 @@ builder.Services.AddSwaggerGen(options =>
 	});
 });
 
-builder.Services.AddDbContext<LibraryDbContext>(options =>
-{
-	options.UseSqlite(builder.Configuration.GetConnectionString("Library"));
-});
+// builder.Services.AddDbContext<LibraryDbContext>(options =>
+// {
+// 	options.UseSqlite(builder.Configuration.GetConnectionString("Library"));
+// });
+
+builder.Services.AddScoped<ILibraryService, LibraryService>();
+builder.Services.AddHttpClient<IRepository<BookDto>, MicroServicesRepository>();
+builder.Services.AddScoped<ILibraryService, LibraryService>();
+builder.Services.AddAutoMapper(typeof(BookMapProfile));
+// builder.Services.AddScoped<IRepository<Book>, DbRepository>(x =>
+// 	new DbRepository(builder.Configuration.GetConnectionString("Library"))
+// );
 
 var app = builder.Build();
 
