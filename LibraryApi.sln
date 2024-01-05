@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryApi.Domain", "Librar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryApi.Write", "LibraryApi.Write\LibraryApi.Write.csproj", "{2B4735CA-1662-47D5-9915-4C75CC65A195}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryApi.AuthServer", "LibraryApi.AuthServer\LibraryApi.AuthServer.csproj", "{6DE44EB2-42D2-4E7F-A11C-DACC6EA67BFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{2B4735CA-1662-47D5-9915-4C75CC65A195}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B4735CA-1662-47D5-9915-4C75CC65A195}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B4735CA-1662-47D5-9915-4C75CC65A195}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DE44EB2-42D2-4E7F-A11C-DACC6EA67BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE44EB2-42D2-4E7F-A11C-DACC6EA67BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DE44EB2-42D2-4E7F-A11C-DACC6EA67BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DE44EB2-42D2-4E7F-A11C-DACC6EA67BFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

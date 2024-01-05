@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 
 using LibraryApi.Authentication;
+using LibraryApi.Services.AuthService;
 using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryApi.Controllers;
@@ -16,9 +17,11 @@ namespace LibraryApi.Controllers;
 [AllowAnonymous]
 public class TokenController : Controller
 {
-	public TokenController()
+	private IAuthService _authService;
+	
+	public TokenController(IAuthService authService)
 	{
-		
+		_authService = authService;
 	}
 
 	/// <summary>
@@ -33,43 +36,6 @@ public class TokenController : Controller
 	[HttpGet]
 	public IActionResult GetToken(string username, string password)
 	{
-		if (username == "username" && password == "password")
-		{
-			var claims = new List<Claim>
-			{
-				new Claim("username", "username"),
-				new Claim("isStuff", "true"),
-				new Claim(ClaimTypes.Role, "user")
-			};
-			var jwt = new JwtSecurityToken(
-				issuer: MyAuthOptions.ISSUER,
-				audience: MyAuthOptions.AUDIENCE,
-				claims: claims,
-				expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(5)), // время действия 5 минуты
-				signingCredentials: new SigningCredentials(MyAuthOptions.GetSymmetricSecurityKey(),
-					SecurityAlgorithms.HmacSha256));
-
-			return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
-		}
-		else if (username == "admin" && password == "admin")
-		{
-			var claims = new List<Claim>
-			{
-				new Claim("username", "admin"),
-				new Claim("isStuff", "true"),
-				new Claim(ClaimTypes.Role, "admin")
-			};
-			var jwt = new JwtSecurityToken(
-				issuer: MyAuthOptions.ISSUER,
-				audience: MyAuthOptions.AUDIENCE,
-				claims: claims,
-				expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(5)), // время действия 5 минуты
-				signingCredentials: new SigningCredentials(MyAuthOptions.GetSymmetricSecurityKey(),
-					SecurityAlgorithms.HmacSha256));
-
-			return Ok(new JwtSecurityTokenHandler().WriteToken(jwt));
-		}
-		
-		return Unauthorized();
+		return _authService.GetToken(username, password);
 	}
 }

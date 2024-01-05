@@ -40,6 +40,7 @@ public class BookWriter: IBookWriter
 
 	public IActionResult Update(int id, BookDto bookDto)
 	{
+		Console.WriteLine("In update");
 		try
 		{
 			bookDto.Id = id;

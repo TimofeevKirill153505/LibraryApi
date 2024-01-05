@@ -186,7 +186,7 @@ public class BooksController: Controller
 	/// Attempt of unauthorized access. You need to send a valid jwt of admin
 	/// </response>
 	[HttpDelete("{id:int}")]
-	[Authorize("Admin Policy")]
+	[Authorize("AdminPolicy")]
 	public IActionResult Delete(int id)
 	{
 		var res = _ls.DeleteById(id);
@@ -232,7 +232,7 @@ public class BooksController: Controller
 	/// Attempt of unauthorized access. You need to send a valid jwt of admin
 	/// </response>
 	[HttpPost]
-	[Authorize("Admin Policy")]
+	[Authorize("AdminPolicy")]
 	public IActionResult Create(BookDto book)
 	{
 		var res = _ls.Create(book);

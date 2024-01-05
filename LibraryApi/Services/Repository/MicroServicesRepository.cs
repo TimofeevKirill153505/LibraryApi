@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LibraryApi.Domain.Models;
@@ -10,16 +11,27 @@ public class MicroServicesRepository: IRepository<BookDto>
 	private readonly HttpClient _client;
 	private readonly string _readUri;
 	private readonly string _writeUri;
+	private readonly HttpContext _context;
+	
 	private readonly JsonSerializerOptions _jsonOptions;
-	public MicroServicesRepository(HttpClient client, IConfiguration config)
+	
+	public MicroServicesRepository(HttpClient client, IConfiguration config, IHttpContextAccessor accessor)
 	{
 		_client = client;
 		_readUri = config["Services:Read"];
 		_writeUri = config["Services:Write"];
+		
 		_jsonOptions = new JsonSerializerOptions
 		{
 			PropertyNameCaseInsensitive = true
 		};
+
+		_context = accessor.HttpContext;
+		if (_context.Request.Headers.Authorization.Any())
+		{
+			_client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse(
+				_context.Request.Headers.Authorization.First());
+		}
 	}
 	
 	public void Dispose()
@@ -37,14 +49,11 @@ public class MicroServicesRepository: IRepository<BookDto>
 		
 		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
 		string buff = streamReader.ReadToEnd();
-		//Console.WriteLine($"value in buffer {buff}");
 		
 		var result = JsonSerializer.Deserialize<Result<BookDto>>(buff, _jsonOptions);
 
 		if (!result.Success)
 		{
-			// Console.WriteLine("In throw exception line");
-			// Console.WriteLine($"errorMessage: {result.ErrorMessage}, success: {result.Success}");
 			throw new Exception(result.ErrorMessage);
 		}
 		
@@ -61,14 +70,12 @@ public class MicroServicesRepository: IRepository<BookDto>
 		
 		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
 		string buff = streamReader.ReadToEnd();
-		//Console.WriteLine($"value in buffer {buff}");
 		
 		var result = JsonSerializer.Deserialize<Result<IEnumerable<BookDto>>>(buff, _jsonOptions);
 
 		if (!result.Success)
 		{
-			// Console.WriteLine("In throw exception line");
-			// Console.WriteLine($"errorMessage: {result.ErrorMessage}, success: {result.Success}");
+
 			throw new Exception(result.ErrorMessage);
 		}
 		
@@ -84,17 +91,18 @@ public class MicroServicesRepository: IRepository<BookDto>
 		message.RequestUri = new Uri(Path.Combine(_writeUri, $"api/books/{id}"));
 		
 		var resp = _client.Send(message);
-		
-		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
-		string buff = streamReader.ReadToEnd();
-		//Console.WriteLine($"value in buffer {buff}");
-		
-		var result = JsonSerializer.Deserialize<Result<BookDto>>(buff, _jsonOptions);
 
+		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
+		
+		string buff = streamReader.ReadToEnd();
+		Console.WriteLine($"StatusCode {resp.StatusCode}");
+		Console.WriteLine($"value in buffer {buff}");
+		
+		Console.WriteLine("before deser");
+		var result = JsonSerializer.Deserialize<Result<BookDto>>(buff, _jsonOptions);
+		Console.WriteLine("after deser");
 		if (!result.Success)
 		{
-			// Console.WriteLine("In throw exception line");
-			// Console.WriteLine($"errorMessage: {result.ErrorMessage}, success: {result.Success}");
 			throw new Exception(result.ErrorMessage);
 		}
 		
@@ -112,14 +120,11 @@ public class MicroServicesRepository: IRepository<BookDto>
 		
 		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
 		string buff = streamReader.ReadToEnd();
-		//Console.WriteLine($"value in buffer {buff}");
 		
 		var result = JsonSerializer.Deserialize<Result<BookDto>>(buff, _jsonOptions);
 
 		if (!result.Success)
 		{
-			// Console.WriteLine("In throw exception line");
-			// Console.WriteLine($"errorMessage: {result.ErrorMessage}, success: {result.Success}");
 			throw new Exception(result.ErrorMessage);
 		}
 		

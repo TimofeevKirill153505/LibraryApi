@@ -7,10 +7,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 using LibraryApi.Authentication;
+using LibraryApi.Domain.Auth;
 using LibraryApi.Domain.Models;
 using LibraryApi.Services.Repository;
 using LibraryApi.Services;
 using LibraryApi.Domain.MappingProfiles;
+using LibraryApi.Services.AuthService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,36 +22,26 @@ builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
-	options.TokenValidationParameters = new TokenValidationParameters
-	{
-		// указывает, будет ли валидироваться издатель при валидации токена
-		ValidateIssuer = true,
-
-		// строка, представляющая издателя
-		ValidIssuer = MyAuthOptions.ISSUER,
-
-		// будет ли валидироваться потребитель токена
-		ValidateAudience = true,
-
-		// установка потребителя токена
-		ValidAudience = MyAuthOptions.AUDIENCE,
-
-		// будет ли валидироваться время существования
-		ValidateLifetime = true,
-
-		// установка ключа безопасности
-		IssuerSigningKey = MyAuthOptions.GetSymmetricSecurityKey(),
-
-		// валидация ключа безопасности
-		ValidateIssuerSigningKey = true,
-	};
+	var tvp = new TokenValidationParameters();
+	tvp.ValidateAudience = false;
+	tvp.ValidateLifetime = true;
+	tvp.ValidateIssuer = true;
+	
+	tvp.ValidIssuer = TokenValidation.ValidIssuer;
+	
+	tvp.SignatureValidator = TokenValidation.GetSignatureValidator(builder.Configuration["ValidateTokenUrl"]);
+	
+	options.TokenValidationParameters = tvp;
+	options.Validate();
 });
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAuthorization(options =>
 {
-	options.AddPolicy("Admin Policy", policy =>
+	options.AddPolicy("AdminPolicy", policy =>
 	{
-		policy.RequireRole(new string[] {"admin"});
+		policy.RequireRole("admin");
 	});
 });
 
@@ -100,6 +92,7 @@ builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddHttpClient<IRepository<BookDto>, MicroServicesRepository>();
 builder.Services.AddScoped<ILibraryService, LibraryService>();
 builder.Services.AddAutoMapper(typeof(BookMapProfile));
+builder.Services.AddHttpClient<IAuthService, AuthService>();
 // builder.Services.AddScoped<IRepository<Book>, DbRepository>(x =>
 // 	new DbRepository(builder.Configuration.GetConnectionString("Library"))
 // );
