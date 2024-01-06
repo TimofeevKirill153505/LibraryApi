@@ -75,6 +75,7 @@ public class BookReader: IBookReader
 		}
 		catch (Exception ex)
 		{
+			Console.WriteLine(ex.GetType().Name);
 			var objResp = new ObjectResult(new Result<BookDto>(false, null, ex.Message));
 			objResp.StatusCode = StatusCodes.Status500InternalServerError;
 			return objResp;

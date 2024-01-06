@@ -1,3 +1,3 @@
 Test project.
 Instrictions to run:
-Clone repo and run aspnet application. Run http or https profile. When the app will be ready, it will open your browser at swagger page.
+Clone repo and run 4 aspnet application in https profile: LibraryApi(localhost:3000), LibraryApi.AuthServer(localhost:3003), LibraryApi.Read(localhost:3001), LibraryApi.Write(localhost:3002). Main app should automatically open browser at right page. If it doesn't, open https://localhost:3000/swagger. To authorize you need to get a json token from GetToken action of Token Controller add use the authorize button of swagger ui. 

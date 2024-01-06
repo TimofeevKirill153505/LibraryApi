@@ -43,6 +43,7 @@ public class ReadDbRepository: IReadRepository<LibraryApi.Domain.Models.Book>
 		}
 		catch (InvalidOperationException ex)
 		{
+			Console.WriteLine("InvalidOperationExcepton");
 			throw new KeyNotFoundException(ex.Message);
 		}
 	}

@@ -176,7 +176,7 @@ class LibraryService : ILibraryService
 			return new OkObjectResult(new Result<BookDto>(true, 
 				_mapper.Map<BookDto>(_books.GetAll().First(book => book.ISBN == isbn))));
 		}
-		catch (KeyNotFoundException e)
+		catch (InvalidOperationException e)
 		{
 
 			var res = new ObjectResult(new Result<BookDto>
