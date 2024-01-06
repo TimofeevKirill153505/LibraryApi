@@ -26,8 +26,18 @@ public class BookWriter: IBookWriter
 			var book = _mapper.Map<Book>(bookDto);
 
 			var bookCreated = _books.Create(book);
+			
+			var resultObject = new ObjectResult(new Result<BookDto>(true, _mapper.Map<BookDto>(bookCreated)));
+			resultObject.StatusCode = 201;
+			//return new OkObjectResult(new Result<BookDto>(true, _mapper.Map<BookDto>(bookCreated)));
+			return resultObject;
+		}
+		catch (ArgumentException e)
+		{
+			var resultObject = new ObjectResult(new Result<BookDto>(false, null, e.Message));
+			resultObject.StatusCode = 400;
 
-			return new OkObjectResult(new Result<BookDto>(true, _mapper.Map<BookDto>(bookCreated)));
+			return resultObject;
 		}
 		catch (Exception e)
 		{
@@ -40,15 +50,31 @@ public class BookWriter: IBookWriter
 
 	public IActionResult Update(int id, BookDto bookDto)
 	{
-		Console.WriteLine("In update");
 		try
 		{
 			bookDto.Id = id;
 			var book = _mapper.Map<Book>(bookDto);
 
-			var bookCreated = _books.Update(book);
+			var bookUpdated = _books.Update(book);
+			
+			var resultObject = new ObjectResult(new Result<BookDto>(true, _mapper.Map<BookDto>(bookUpdated)));
+			resultObject.StatusCode = 201;
+			
+			return resultObject;
+		}
+		catch (KeyNotFoundException e)
+		{
+			var resultObject = new ObjectResult(new Result<BookDto>(false, null, e.Message));
+			resultObject.StatusCode = 404;
 
-			return new OkObjectResult(new Result<BookDto>(true, _mapper.Map<BookDto>(bookCreated)));
+			return resultObject;
+		}
+		catch (ArgumentException e)
+		{
+			var resultObject = new ObjectResult(new Result<BookDto>(false, null, e.Message));
+			resultObject.StatusCode = 400;
+
+			return resultObject;
 		}
 		catch (Exception e)
 		{
@@ -66,6 +92,13 @@ public class BookWriter: IBookWriter
 			var bookDeleted = _books.Delete(id);
 
 			return new OkObjectResult(new Result<BookDto>(true, _mapper.Map<BookDto>(bookDeleted)));
+		}
+		catch (KeyNotFoundException e)
+		{
+			var resultObject = new ObjectResult(new Result<BookDto>(false, null, e.Message));
+			resultObject.StatusCode = 404;
+
+			return resultObject;
 		}
 		catch (Exception e)
 		{

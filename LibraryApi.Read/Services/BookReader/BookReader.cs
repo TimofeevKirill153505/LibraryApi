@@ -39,10 +39,16 @@ public class BookReader: IBookReader
 	{
 		try
 		{
-			var res = _books.GetFirst(book => book.Id == id);
-			
-			return new OkObjectResult(new Result<BookDto>(true, 
+			var res = _books.GetById(id);
+
+			return new OkObjectResult(new Result<BookDto>(true,
 				_mapper.Map<BookDto>(res)));
+		}
+		catch (KeyNotFoundException e)
+		{
+			var objResp = new ObjectResult(new Result<BookDto>(false, null, e.Message));
+			objResp.StatusCode = StatusCodes.Status404NotFound;
+			return objResp;
 		}
 		catch (Exception ex)
 		{
@@ -57,9 +63,15 @@ public class BookReader: IBookReader
 		try
 		{
 			var res = _books.GetFirst(book => book.ISBN == isbn);
-			
-			return new OkObjectResult(new Result<BookDto>(true, 
+
+			return new OkObjectResult(new Result<BookDto>(true,
 				_mapper.Map<BookDto>(res)));
+		}
+		catch (KeyNotFoundException ex)
+		{
+			var objResp = new ObjectResult(new Result<BookDto>(false, null, ex.Message));
+			objResp.StatusCode = StatusCodes.Status404NotFound;
+			return objResp;
 		}
 		catch (Exception ex)
 		{

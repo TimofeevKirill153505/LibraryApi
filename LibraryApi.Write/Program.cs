@@ -46,6 +46,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddDbContext<LibraryDbContext>(options =>
 {
 	options.UseSqlite(builder.Configuration.GetConnectionString("Library"));
+	options.EnableSensitiveDataLogging();
 });
 
 

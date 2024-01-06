@@ -21,6 +21,15 @@ public class ReadDbRepository: IReadRepository<LibraryApi.Domain.Models.Book>
 		return _db.Books;
 	}
 
+	public Book GetById(int id)
+	{
+		var res = _db.Books.Find(id);
+		if (res == null)
+			throw new KeyNotFoundException($"There is no book with id {id}");
+
+		return res;
+	}
+	
 	public IEnumerable<Book> GetAllByPredicate(Func<Book, bool> predicate)
 	{
 		return _db.Books.Where(predicate);
@@ -28,6 +37,14 @@ public class ReadDbRepository: IReadRepository<LibraryApi.Domain.Models.Book>
 
 	public Book GetFirst(Func<Book, bool> predicate)
 	{
-		return _db.Books.First(predicate);
+		try
+		{
+			return _db.Books.First(predicate);
+		}
+		catch (InvalidOperationException ex)
+		{
+			throw new KeyNotFoundException(ex.Message);
+		}
 	}
+	
 }

@@ -21,8 +21,6 @@ namespace LibraryApi.Controllers;
 public class BooksController: Controller
 {
 	private readonly ILibraryService _ls;
-
-	
 	
 	public BooksController(ILibraryService ls)
 	{
@@ -50,14 +48,7 @@ public class BooksController: Controller
 	[AllowAnonymous]
 	public IActionResult GetAll()
 	{
-		var res = _ls.GetAll();
-
-		if (!res.Success)
-		{
-			return StatusCode(500, res);
-		}
-		
-		return Ok(res);
+		return _ls.GetAll();
 	}
 	
 	/// <summary>
@@ -74,7 +65,7 @@ public class BooksController: Controller
 	///</remarks>
 	/// 
 	/// <response code="200">Success. Book is in data field</response>;
-	/// 
+	/// <response code="404">There is no book with given id</response>
 	/// <response code="500">
 	/// Some error occured while processing request.
 	/// Success field is false. In error Message text description of an error
@@ -83,14 +74,7 @@ public class BooksController: Controller
 	[AllowAnonymous]
 	public IActionResult GetById(int id)
 	{
-		var res = _ls.GetById(id);
-
-		if (!res.Success)
-		{
-			return StatusCode(500, res);
-		}
-
-		return Ok(res);
+		return _ls.GetById(id);
 	}
 
 	/// <summary>
@@ -102,6 +86,7 @@ public class BooksController: Controller
 	/// </returns>
 	///
 	/// <response code="200">Success. Book is in data field</response>
+	/// <response code="404">There is no book with given isbn</response>
 	/// <response code="500">
 	/// Some error occured while processing request.
 	/// Success field is false. In error Message text description of an error
@@ -110,14 +95,7 @@ public class BooksController: Controller
 	[AllowAnonymous]
 	public IActionResult GetByIsbn(string isbn)
 	{
-		var res = _ls.GetByISBN(isbn);
-
-		if (!res.Success)
-		{
-			return StatusCode(500, res);
-		}
-
-		return Ok(res);
+		return _ls.GetByISBN(isbn);
 	}
 	
 	/// <summary>
@@ -142,27 +120,21 @@ public class BooksController: Controller
 	/// }
 	/// </remarks>
 	/// <returns>Book, that was updated</returns>
-	/// <response code="200">Success. Updated book in data field</response>;
-	/// 
+	/// <response code="201">Success. Updated book in data field</response>;
+	/// <response code="401">
+	/// Attempt of unauthenticated access. You need to send a valid jwt in header with your request.
+	/// </response>
+	/// <response code="400">Bad request. Check the body of request</response>
+	/// <response code="404">There is no book with given id</response>
 	/// <response code="500">
 	/// Some error occured while processing request.
 	/// Success field is false. In error Message text description of an error
 	/// </response>
 	///
-	/// <response code="401">
-	/// Attempt of unauthenticated access. You need to send a valid jwt in header with your request.
-	/// </response>
 	[HttpPut("{id:int}")]
 	public IActionResult Update(int id, BookDto book)
 	{
-		var res = _ls.Update(id, book);
-
-		if (!res.Success)
-		{
-			return StatusCode(500, res);
-		}
-
-		return Ok(res);
+		return _ls.Update(id, book);
 	}
 
 	/// <summary>
@@ -170,34 +142,26 @@ public class BooksController: Controller
 	/// </summary>
 	/// <param name="id">Id of book to delete</param>
 	/// <returns>Book, that was deleted</returns>
-	/// <response code="200">Success. Deleted book in data field</response>;
 	/// <remarks>
 	/// Request example:
 	/// DELETE /api/books/2
 	/// </remarks>
-	/// <response code="500">
-	/// Some error occured while processing request.
-	/// Success field is false. In error Message text description of an error
-	/// </response>
+	/// <response code="200">Success. Deleted book in data field</response>;
 	/// <response code="401">
 	/// Attempt of unauthenticated access. You need to send a valid jwt in header with your request.
 	/// </response>
-	/// <response code="403">
-	/// Attempt of unauthorized access. You need to send a valid jwt of admin
+	/// <response code="403"> Attempt of unauthorized access. You need to send a valid jwt of admin </response>
+	/// <response code="404"> There is no book with given id </response>
+	/// <response code="500">
+	/// Some error occured while processing request.
+	/// Success field is false. In error Message text description of an error
 	/// </response>
 	[HttpDelete("{id:int}")]
 	[Authorize("AdminPolicy")]
 	public IActionResult Delete(int id)
 	{
-		var res = _ls.DeleteById(id);
-
-		if (!res.Success)
-		{
-			return StatusCode(500, res);
+		return _ls.DeleteById(id);
 		}
-
-		return Ok(res);
-	}
 
 	/// <summary>
 	/// Creates a new book
@@ -207,7 +171,7 @@ public class BooksController: Controller
 	/// </param>
 	/// <returns>Book, that was created</returns>
 	/// <response code="200">Success. Created book in data field</response>;
-	/// <remarks>
+	/// <example>
 	/// Request example:
 	/// POST /api/books/
 	/// {
@@ -219,29 +183,24 @@ public class BooksController: Controller
 	///		"timeOfDelivery": null,
 	///		"timeOfReturn": null
 	/// }
-	/// </remarks>
-	/// <response code="500">
-	/// Some error occured while processing request.
-	/// Success field is false. In error Message text description of an error
-	/// </response>
-	/// 
+	/// </example>
+	/// <response code="201">Success. Created book in data field</response>
+	/// <response code="400"> Bad request. Check the body of request.</response>
 	/// <response code="401">
 	/// Attempt of unauthenticated access. You need to send a valid jwt in header with your request.
 	/// </response>
 	/// <response code="403">
 	/// Attempt of unauthorized access. You need to send a valid jwt of admin
 	/// </response>
+	/// 
+	/// <response code="500">
+	/// Some error occured while processing request.
+	/// Success field is false. In error Message text description of an error
+	/// </response>
 	[HttpPost]
 	[Authorize("AdminPolicy")]
 	public IActionResult Create(BookDto book)
 	{
-		var res = _ls.Create(book);
-
-		if (!res.Success)
-		{
-			return StatusCode(500, res);
-		}
-
-		return Ok(res);
+		return _ls.Create(book);
 	}
 }

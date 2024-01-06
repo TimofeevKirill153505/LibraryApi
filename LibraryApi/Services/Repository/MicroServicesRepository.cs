@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -33,6 +34,45 @@ public class MicroServicesRepository: IRepository<BookDto>
 				_context.Request.Headers.Authorization.First());
 		}
 	}
+
+	private T UnpackResponse<T>(HttpResponseMessage resp)
+	{
+		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
+		string buff = streamReader.ReadToEnd();
+		if (resp.StatusCode != HttpStatusCode.OK && resp.StatusCode != HttpStatusCode.Created)
+		{
+			if (resp.StatusCode == HttpStatusCode.Unauthorized) 
+				throw new Exception("Attempt of unauthorized access");
+			if (resp.StatusCode == HttpStatusCode.Forbidden)
+				throw new Exception("You have no rights to access");
+
+			Result<T> res;
+			try
+			{
+				res = JsonSerializer.Deserialize<Result<T>>(buff, _jsonOptions);
+			}
+			catch (Exception e)
+			{
+				throw new Exception("Response from service, " +
+									$"that can't be parsed by Json serializer. StatusCode: {(int)resp.StatusCode}");
+			}
+
+			if (resp.StatusCode == HttpStatusCode.NotFound)
+				throw new KeyNotFoundException(res.ErrorMessage);
+
+			if (resp.StatusCode == HttpStatusCode.BadRequest)
+				throw new ArgumentException(res.ErrorMessage);
+
+			throw new Exception(res.ErrorMessage);
+		}
+
+		
+		
+		var result = JsonSerializer.Deserialize<Result<T>>(buff, _jsonOptions);
+
+		return result.Data;
+		// UnauthorizedAccessException
+	}
 	
 	public void Dispose()
 	{}
@@ -46,18 +86,8 @@ public class MicroServicesRepository: IRepository<BookDto>
 		message.RequestUri = new Uri(Path.Combine(_writeUri, "api/books"));
 		
 		var resp = _client.Send(message);
-		
-		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
-		string buff = streamReader.ReadToEnd();
-		
-		var result = JsonSerializer.Deserialize<Result<BookDto>>(buff, _jsonOptions);
 
-		if (!result.Success)
-		{
-			throw new Exception(result.ErrorMessage);
-		}
-		
-		return result.Data;
+		return UnpackResponse<BookDto>(resp);
 	}
 
 	public IEnumerable<BookDto> GetAll()
@@ -67,21 +97,21 @@ public class MicroServicesRepository: IRepository<BookDto>
 		message.Method = HttpMethod.Get;
 		message.RequestUri = new Uri(Path.Combine(_readUri, "api/books"));
 		var resp = _client.Send(message);
-		
-		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
-		string buff = streamReader.ReadToEnd();
-		
-		var result = JsonSerializer.Deserialize<Result<IEnumerable<BookDto>>>(buff, _jsonOptions);
 
-		if (!result.Success)
-		{
-
-			throw new Exception(result.ErrorMessage);
-		}
-		
-		return result.Data;
+		return UnpackResponse<IEnumerable<BookDto>>(resp);
 	}
+	
+	public BookDto GetById(int id)
+	{
+		//var res = _client.GetAsync(Path.Combine(_readUri, "api/books"));
+		HttpRequestMessage message = new HttpRequestMessage();
+		message.Method = HttpMethod.Get;
+		message.RequestUri = new Uri(Path.Combine(_readUri, $"api/books/{id}"));
+		var resp = _client.Send(message);
 
+		return UnpackResponse<BookDto>(resp);
+	}
+	
 	public BookDto Update(int id, BookDto obj)
 	{
 		HttpRequestMessage message = new HttpRequestMessage();
@@ -92,21 +122,7 @@ public class MicroServicesRepository: IRepository<BookDto>
 		
 		var resp = _client.Send(message);
 
-		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
-		
-		string buff = streamReader.ReadToEnd();
-		Console.WriteLine($"StatusCode {resp.StatusCode}");
-		Console.WriteLine($"value in buffer {buff}");
-		
-		Console.WriteLine("before deser");
-		var result = JsonSerializer.Deserialize<Result<BookDto>>(buff, _jsonOptions);
-		Console.WriteLine("after deser");
-		if (!result.Success)
-		{
-			throw new Exception(result.ErrorMessage);
-		}
-		
-		return result.Data;
+		return UnpackResponse<BookDto>(resp);
 	}
 
 	public BookDto Delete(int id)
@@ -117,17 +133,7 @@ public class MicroServicesRepository: IRepository<BookDto>
 		message.RequestUri = new Uri(Path.Combine(_writeUri, $"api/books/{id}"));
 		
 		var resp = _client.Send(message);
-		
-		StreamReader streamReader = new StreamReader(resp.Content.ReadAsStream());
-		string buff = streamReader.ReadToEnd();
-		
-		var result = JsonSerializer.Deserialize<Result<BookDto>>(buff, _jsonOptions);
 
-		if (!result.Success)
-		{
-			throw new Exception(result.ErrorMessage);
-		}
-		
-		return result.Data;
+		return UnpackResponse<BookDto>(resp);
 	}
 }

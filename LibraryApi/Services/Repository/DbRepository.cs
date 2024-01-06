@@ -29,6 +29,11 @@ public class DbRepository: IRepository<Book>, IAsyncDisposable
 		return _db.Books;
 	}
 
+	public Book GetById(int id)
+	{
+		return _db.Books.Find(id);
+	}
+	
 	public Book Update(int id, Book obj)
 	{
 		var ee = _db.Books.Update(obj);
